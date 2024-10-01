@@ -5,3 +5,5 @@
 This is a 3D rendered made in C#.
 
 ## Copyright Info
+
+Copyright © Kian Conti 2024
