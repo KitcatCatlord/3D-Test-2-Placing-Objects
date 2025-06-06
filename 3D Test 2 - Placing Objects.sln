@@ -5,17 +5,23 @@ VisualStudioVersion = 17.11.35303.130
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "3D Test 2 - Placing Objects", "3D Test 2 - Placing Objects\3D Test 2 - Placing Objects.csproj", "{F1A228AF-C5A1-4233-B346-D34F9558959A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathHelpers.Tests", "MathHelpers.Tests\MathHelpers.Tests.csproj", "{D008C152-BEC1-4FD7-A0C8-CD02EF787882}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F1A228AF-C5A1-4233-B346-D34F9558959A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F1A228AF-C5A1-4233-B346-D34F9558959A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F1A228AF-C5A1-4233-B346-D34F9558959A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F1A228AF-C5A1-4233-B346-D34F9558959A}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
+        GlobalSection(ProjectConfigurationPlatforms) = postSolution
+                {F1A228AF-C5A1-4233-B346-D34F9558959A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+                {F1A228AF-C5A1-4233-B346-D34F9558959A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+                {F1A228AF-C5A1-4233-B346-D34F9558959A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+                {F1A228AF-C5A1-4233-B346-D34F9558959A}.Release|Any CPU.Build.0 = Release|Any CPU
+                {D008C152-BEC1-4FD7-A0C8-CD02EF787882}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+                {D008C152-BEC1-4FD7-A0C8-CD02EF787882}.Debug|Any CPU.Build.0 = Debug|Any CPU
+                {D008C152-BEC1-4FD7-A0C8-CD02EF787882}.Release|Any CPU.ActiveCfg = Release|Any CPU
+                {D008C152-BEC1-4FD7-A0C8-CD02EF787882}.Release|Any CPU.Build.0 = Release|Any CPU
+        EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
