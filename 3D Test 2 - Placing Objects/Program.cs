@@ -258,13 +258,11 @@ namespace Console3DEnvironment
 
                             Vector4 v = new Vector4(point.X, point.Y, point.Z, 1);
                             Vector4 projectedPoint4D = projectionMatrix.MultiplyVector(v);
+                            if (projectedPoint4D.W == 0)
+                                projectedPoint4D.W = 0.0001f;
+                            projectedPoint4D.X /= projectedPoint4D.W;
+                            projectedPoint4D.Y /= projectedPoint4D.W;
                             Vector3 projectedPoint = new Vector3(projectedPoint4D.X, projectedPoint4D.Y, projectedPoint4D.Z);
-
-                            if (projectedPoint.Z == 0)
-                                projectedPoint.Z = 0.0001f;
-
-                            projectedPoint.X /= projectedPoint.Z;
-                            projectedPoint.Y /= projectedPoint.Z;
 
                             // Scale into view
                             projectedPoint.X += 1.0f;
