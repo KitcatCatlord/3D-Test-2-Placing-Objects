@@ -14,6 +14,8 @@ public class FPSDisplay : MonoBehaviour
 
     private float[] frameDeltaTimes;
     private int frameIndex = 0;
+    private int frameCount = 0;
+    private float cachedFPS = 0f;
 
     void Start()
     {
@@ -23,28 +25,45 @@ public class FPSDisplay : MonoBehaviour
 
     void Update()
     {
+        // Ensure frameRange is valid
+        if (frameRange < 1) frameRange = 1;
+        
+        // Resize array if frameRange changed
+        if (frameDeltaTimes.Length != frameRange)
+        {
+            frameDeltaTimes = new float[frameRange];
+            frameIndex = 0;
+            frameCount = 0;
+        }
+        
         // Store the current frame's delta time using unscaled time
         // (unaffected by Time.timeScale, useful for pause menus, etc.)
         frameDeltaTimes[frameIndex] = Time.unscaledDeltaTime;
         
+        // Track how many frames we've collected
+        if (frameCount < frameRange)
+        {
+            frameCount++;
+        }
+        
         // Move to the next index, wrapping around when we reach the end
         frameIndex = (frameIndex + 1) % frameRange;
+        
+        // Calculate the average delta time over populated frames only
+        float avgDeltaTime = 0f;
+        for (int i = 0; i < frameCount; i++)
+        {
+            avgDeltaTime += frameDeltaTimes[i];
+        }
+        avgDeltaTime /= frameCount;
+
+        // Convert to FPS (frames per second) and cache it
+        cachedFPS = avgDeltaTime > 0 ? 1f / avgDeltaTime : 0f;
     }
 
     void OnGUI()
     {
-        // Calculate the average delta time over our frame range
-        float avgDeltaTime = 0f;
-        for (int i = 0; i < frameDeltaTimes.Length; i++)
-        {
-            avgDeltaTime += frameDeltaTimes[i];
-        }
-        avgDeltaTime /= frameDeltaTimes.Length;
-
-        // Convert to FPS (frames per second)
-        float fps = avgDeltaTime > 0 ? 1f / avgDeltaTime : 0f;
-
-        // Display FPS in the top-left corner with a simple label
-        GUI.Label(new Rect(10, 10, 100, 20), string.Format("FPS: {0:F1}", fps));
+        // Display the cached FPS value in the top-left corner
+        GUI.Label(new Rect(10, 10, 100, 20), string.Format("FPS: {0:F1}", cachedFPS));
     }
 }
