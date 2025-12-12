@@ -10,35 +10,30 @@ namespace Console3DEnvironment
         static int screenHeight;
         static char[] screenBuffer;
 
-        // Camera variables
         static Vector3 cameraPosition = new Vector3(0, 0, -5);
         static Vector3 cameraDirection = new Vector3(0, 0, 1);
         static float cameraYaw = 0.0f;
         static float cameraPitch = 0.0f;
 
-        // Objects in the scene
         static List<Mesh> sceneObjects;
 
         static void Main(string[] args)
         {
-            // Wait for user input to allow resizing the console
             Console.WriteLine("Press Enter to start the 3D Renderer. Resize the console window as desired.");
             Console.ReadLine();
             Console.Clear();
 
-            // Display instructions
             DisplayInstructions();
 
             Console.CursorVisible = false;
             InitializeScreenBuffer();
             InitializeScene();
 
-            // Main loop
             while (true)
             {
                 HandleInput();
                 RenderScene();
-                Thread.Sleep(16); // Roughly 60 FPS
+                Thread.Sleep(16);
             }
         }
 
@@ -70,10 +65,8 @@ namespace Console3DEnvironment
 
         static void InitializeScene()
         {
-            // Initialize the list of scene objects
             sceneObjects = new List<Mesh>();
 
-            // Create initial cubes in the scene
             sceneObjects.Add(Mesh.CreateCube(new Vector3(0, 0, 15)));
             sceneObjects.Add(Mesh.CreateCube(new Vector3(5, 0, 25)));
             sceneObjects.Add(Mesh.CreateCube(new Vector3(-5, 0, 25)));
@@ -88,34 +81,29 @@ namespace Console3DEnvironment
                 var keyInfo = Console.ReadKey(true);
                 var key = keyInfo.Key;
 
-                // Movement and rotation speed
                 float moveSpeed = 0.5f;
                 float turnSpeed = 1.0f;
 
                 switch (key)
                 {
-                    // Move forward and backward
                     case ConsoleKey.W:
                         cameraPosition += cameraDirection * moveSpeed;
                         break;
                     case ConsoleKey.S:
                         cameraPosition -= cameraDirection * moveSpeed;
                         break;
-                    // Strafe left and right
                     case ConsoleKey.A:
                         cameraPosition -= Vector3.Cross(new Vector3(0, 1, 0), cameraDirection) * moveSpeed;
                         break;
                     case ConsoleKey.D:
                         cameraPosition += Vector3.Cross(new Vector3(0, 1, 0), cameraDirection) * moveSpeed;
                         break;
-                    // Move up and down
                     case ConsoleKey.UpArrow:
                         cameraPosition.Y += moveSpeed;
                         break;
                     case ConsoleKey.DownArrow:
                         cameraPosition.Y -= moveSpeed;
                         break;
-                    // Pan left and right
                     case ConsoleKey.LeftArrow:
                         cameraYaw -= turnSpeed;
                         UpdateCameraDirection();
@@ -124,7 +112,6 @@ namespace Console3DEnvironment
                         cameraYaw += turnSpeed;
                         UpdateCameraDirection();
                         break;
-                    // Pan up and down
                     case ConsoleKey.T:
                         cameraPitch += turnSpeed;
                         UpdateCameraDirection();
@@ -133,7 +120,6 @@ namespace Console3DEnvironment
                         cameraPitch -= turnSpeed;
                         UpdateCameraDirection();
                         break;
-                    // Object placement
                     case ConsoleKey.P:
                         PlaceNewCube();
                         break;
@@ -141,7 +127,6 @@ namespace Console3DEnvironment
                         RemoveLastCube();
                         break;
                     default:
-                        // Check for window resize
                         if (Console.WindowWidth != screenWidth || Console.WindowHeight != screenHeight)
                         {
                             InitializeScreenBuffer();
@@ -169,14 +154,11 @@ namespace Console3DEnvironment
 
         static void PlaceNewCube()
         {
-            // Define the distance in front of the camera to place the new cube
             float distance = 5.0f;
             Vector3 newPosition = cameraPosition + cameraDirection * distance;
 
-            // Optional: Slightly offset vertically to avoid overlapping with the camera
             newPosition.Y += 0;
 
-            // Add the new cube to the scene
             sceneObjects.Add(Mesh.CreateCube(newPosition));
         }
 
@@ -190,20 +172,17 @@ namespace Console3DEnvironment
 
         static void RenderScene()
         {
-            // Clear the screen buffer
             for (int i = 0; i < screenBuffer.Length; i++)
             {
                 screenBuffer[i] = ' ';
             }
 
-            // Projection parameters
             float fov = 90.0f;
-            float aspectRatio = (float)screenWidth / screenHeight; // Corrected aspect ratio
+            float aspectRatio = (float)screenWidth / screenHeight;
             float near = 0.1f;
             float far = 1000.0f;
             float fovRad = (float)(1.0f / Math.Tan(DegreesToRadians(fov) * 0.5f));
 
-            // Projection matrix
             Matrix4x4 projectionMatrix = new Matrix4x4(
                 aspectRatio * fovRad, 0, 0, 0,
                 0, fovRad, 0, 0,
@@ -215,26 +194,21 @@ namespace Console3DEnvironment
             {
                 foreach (var triangle in mesh.Triangles)
                 {
-                    // Back-Face Culling: Calculate the normal of the triangle
                     Vector3 line1 = triangle.Point1 - triangle.Point0;
                     Vector3 line2 = triangle.Point2 - triangle.Point0;
                     Vector3 normal = Vector3.Cross(line1, line2);
                     normal = Vector3.Normalize(normal);
 
-                    // Vector from camera to triangle
                     Vector3 cameraToTriangle = triangle.Point0 - cameraPosition;
 
-                    // If the dot product is less than zero, the triangle is facing the camera
                     if (Vector3.Dot(normal, cameraToTriangle) < 0)
                     {
                         Triangle transformedTriangle = new Triangle();
 
-                        // World transformation: Translate relative to camera
                         transformedTriangle.Point0 = triangle.Point0 - cameraPosition;
                         transformedTriangle.Point1 = triangle.Point1 - cameraPosition;
                         transformedTriangle.Point2 = triangle.Point2 - cameraPosition;
 
-                        // Camera rotation: Apply rotation matrix
                         Matrix4x4 rotationMatrix = Matrix4x4.CreateFromYawPitchRoll(
                             DegreesToRadians(cameraYaw),
                             DegreesToRadians(cameraPitch),
@@ -243,7 +217,6 @@ namespace Console3DEnvironment
                         transformedTriangle.Point1 = Vector3.Transform(transformedTriangle.Point1, rotationMatrix);
                         transformedTriangle.Point2 = Vector3.Transform(transformedTriangle.Point2, rotationMatrix);
 
-                        // Projection
                         Vector3[] projectedPoints3D = new Vector3[3];
                         for (int i = 0; i < 3; i++)
                         {
@@ -266,7 +239,6 @@ namespace Console3DEnvironment
                             projectedPoint.X /= projectedPoint.Z;
                             projectedPoint.Y /= projectedPoint.Z;
 
-                            // Scale into view
                             projectedPoint.X += 1.0f;
                             projectedPoint.Y += 1.0f;
                             projectedPoint.X *= 0.5f * screenWidth;
@@ -275,27 +247,24 @@ namespace Console3DEnvironment
                             projectedPoints3D[i] = projectedPoint;
                         }
 
-                        // Create a new triangle with projected points
                         Triangle projectedTriangle = new Triangle(
                             projectedPoints3D[0],
                             projectedPoints3D[1],
                             projectedPoints3D[2]
                         );
 
-                        // Rasterize triangle
                         DrawTriangle(projectedTriangle);
                     }
                 }
             }
 
-            // Draw the buffer
             try
             {
                 Console.SetCursorPosition(0, 0);
                 for (int y = 0; y < screenHeight; y++)
                 {
                     if (y * screenWidth + screenWidth > screenBuffer.Length)
-                        break; // Prevent out-of-range errors
+                        break;
 
                     string line = new string(screenBuffer, y * screenWidth, screenWidth);
                     Console.Write(line);
@@ -303,14 +272,11 @@ namespace Console3DEnvironment
             }
             catch (ArgumentOutOfRangeException)
             {
-                // Handle cases where console size changes during rendering
-                // You can choose to ignore or reset the buffer
             }
         }
 
         static void DrawTriangle(Triangle triangle)
         {
-            // Convert points to integers
             int x1 = Clamp((int)triangle.Point0.X, 0, screenWidth - 1);
             int y1 = Clamp((int)triangle.Point0.Y, 0, screenHeight - 1);
             int x2 = Clamp((int)triangle.Point1.X, 0, screenWidth - 1);
@@ -359,7 +325,6 @@ namespace Console3DEnvironment
         }
     }
 
-    // Custom Vector3 struct
     public struct Vector3
     {
         public float X;
@@ -373,25 +338,21 @@ namespace Console3DEnvironment
             Z = z;
         }
 
-        // Addition
         public static Vector3 operator +(Vector3 a, Vector3 b)
         {
             return new Vector3(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
         }
 
-        // Subtraction
         public static Vector3 operator -(Vector3 a, Vector3 b)
         {
             return new Vector3(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
         }
 
-        // Scalar multiplication
         public static Vector3 operator *(Vector3 a, float scalar)
         {
             return new Vector3(a.X * scalar, a.Y * scalar, a.Z * scalar);
         }
 
-        // Cross product
         public static Vector3 Cross(Vector3 a, Vector3 b)
         {
             return new Vector3(
@@ -401,13 +362,11 @@ namespace Console3DEnvironment
             );
         }
 
-        // Dot product
         public static float Dot(Vector3 a, Vector3 b)
         {
             return a.X * b.X + a.Y * b.Y + a.Z * b.Z;
         }
 
-        // Normalize
         public static Vector3 Normalize(Vector3 v)
         {
             float length = (float)Math.Sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z);
@@ -415,7 +374,6 @@ namespace Console3DEnvironment
             return new Vector3(v.X / length, v.Y / length, v.Z / length);
         }
 
-        // Transform by Matrix4x4
         public static Vector3 Transform(Vector3 vector, Matrix4x4 matrix)
         {
             float x = vector.X * matrix.M11 + vector.Y * matrix.M21 + vector.Z * matrix.M31 + matrix.M41;
@@ -434,7 +392,6 @@ namespace Console3DEnvironment
         }
     }
 
-    // Custom Vector4 struct
     public struct Vector4
     {
         public float X, Y, Z, W;
@@ -448,7 +405,6 @@ namespace Console3DEnvironment
         }
     }
 
-    // Custom Matrix4x4 struct
     public struct Matrix4x4
     {
         public float M11, M12, M13, M14;
@@ -456,7 +412,6 @@ namespace Console3DEnvironment
         public float M31, M32, M33, M34;
         public float M41, M42, M43, M44;
 
-        // Constructor
         public Matrix4x4(
             float m11, float m12, float m13, float m14,
             float m21, float m22, float m23, float m24,
@@ -470,7 +425,6 @@ namespace Console3DEnvironment
             M41 = m41; M42 = m42; M43 = m43; M44 = m44;
         }
 
-        // Create rotation matrix from yaw, pitch, and roll
         public static Matrix4x4 CreateFromYawPitchRoll(float yaw, float pitch, float roll)
         {
             float cosYaw = (float)Math.Cos(yaw);
@@ -505,7 +459,6 @@ namespace Console3DEnvironment
             return matrix;
         }
 
-        // Multiply Matrix4x4 by Vector4 using a method
         public Vector4 MultiplyVector(Vector4 v)
         {
             return new Vector4(
@@ -517,14 +470,12 @@ namespace Console3DEnvironment
         }
     }
 
-    // Mesh class representing an object in the scene
     class Mesh
     {
         public Triangle[] Triangles;
 
         public static Mesh CreateCube(Vector3 position)
         {
-            // Define the 8 vertices of a cube
             Vector3[] vertices = new Vector3[8];
             vertices[0] = new Vector3(-1, -1, -1) + position;
             vertices[1] = new Vector3(1, -1, -1) + position;
@@ -535,30 +486,23 @@ namespace Console3DEnvironment
             vertices[6] = new Vector3(1, 1, 1) + position;
             vertices[7] = new Vector3(-1, 1, 1) + position;
 
-            // Define the 12 triangles composing the cube
             Triangle[] triangles = new Triangle[12];
 
-            // South face
             triangles[0] = new Triangle(vertices[0], vertices[1], vertices[2]);
             triangles[1] = new Triangle(vertices[0], vertices[2], vertices[3]);
 
-            // East face
             triangles[2] = new Triangle(vertices[1], vertices[5], vertices[6]);
             triangles[3] = new Triangle(vertices[1], vertices[6], vertices[2]);
 
-            // North face
             triangles[4] = new Triangle(vertices[5], vertices[4], vertices[7]);
             triangles[5] = new Triangle(vertices[5], vertices[7], vertices[6]);
 
-            // West face
             triangles[6] = new Triangle(vertices[4], vertices[0], vertices[3]);
             triangles[7] = new Triangle(vertices[4], vertices[3], vertices[7]);
 
-            // Top face
             triangles[8] = new Triangle(vertices[3], vertices[2], vertices[6]);
             triangles[9] = new Triangle(vertices[3], vertices[6], vertices[7]);
 
-            // Bottom face
             triangles[10] = new Triangle(vertices[4], vertices[5], vertices[1]);
             triangles[11] = new Triangle(vertices[4], vertices[1], vertices[0]);
 
@@ -566,7 +510,6 @@ namespace Console3DEnvironment
         }
     }
 
-    // Triangle struct representing a triangle with 3 vertices
     struct Triangle
     {
         public Vector3 Point0;
