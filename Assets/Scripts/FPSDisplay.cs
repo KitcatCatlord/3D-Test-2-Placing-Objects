@@ -10,6 +10,7 @@ public class FPSDisplay : MonoBehaviour
     /// Number of frames to average over for smoother FPS display.
     /// Higher values = smoother but less responsive to FPS changes.
     /// </summary>
+    [Range(1, 300)]
     public int frameRange = 60;
 
     private float[] frameDeltaTimes;
