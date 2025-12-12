@@ -291,17 +291,20 @@ namespace Console3DEnvironment
             }
 
             // Draw FPS counter in bottom left
-            string fpsText = $"FPS: {currentFPS:F1}";
-            int fpsY = screenHeight - 1;
-            for (int i = 0; i < fpsText.Length && i < screenWidth; i++)
+            if (screenHeight > 0)
             {
-                screenBuffer[fpsY * screenWidth + i] = fpsText[i];
+                string fpsText = $"FPS: {currentFPS:F1}";
+                int fpsY = screenHeight - 1;
+                for (int i = 0; i < fpsText.Length && i < screenWidth; i++)
+                {
+                    screenBuffer[fpsY * screenWidth + i] = fpsText[i];
+                }
             }
 
             try
             {
                 // Use StringBuilder for efficient rendering
-                StringBuilder sb = new StringBuilder(screenBuffer.Length + screenHeight);
+                StringBuilder sb = new StringBuilder(screenBuffer.Length + screenHeight - 1);
                 Console.SetCursorPosition(0, 0);
                 
                 for (int y = 0; y < screenHeight; y++)
