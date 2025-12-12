@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 
 namespace Console3DEnvironment
@@ -17,6 +18,12 @@ namespace Console3DEnvironment
 
         static List<Mesh> sceneObjects;
 
+        // FPS tracking
+        static System.Diagnostics.Stopwatch frameTimer = new System.Diagnostics.Stopwatch();
+        static Queue<double> frameTimes = new Queue<double>();
+        static int maxFrameSamples = 60;
+        static double currentFPS = 0;
+
         static void Main(string[] args)
         {
             Console.WriteLine("Press Enter to start the 3D Renderer. Resize the console window as desired.");
@@ -29,10 +36,14 @@ namespace Console3DEnvironment
             InitializeScreenBuffer();
             InitializeScene();
 
+            frameTimer.Start();
+
             while (true)
             {
                 HandleInput();
+                CheckConsoleResize();
                 RenderScene();
+                UpdateFPS();
                 Thread.Sleep(16);
             }
         }
@@ -127,12 +138,39 @@ namespace Console3DEnvironment
                         RemoveLastCube();
                         break;
                     default:
-                        if (Console.WindowWidth != screenWidth || Console.WindowHeight != screenHeight)
-                        {
-                            InitializeScreenBuffer();
-                        }
                         break;
                 }
+            }
+        }
+
+        static void CheckConsoleResize()
+        {
+            if (Console.WindowWidth != screenWidth || Console.WindowHeight != screenHeight)
+            {
+                InitializeScreenBuffer();
+            }
+        }
+
+        static void UpdateFPS()
+        {
+            double frameTime = frameTimer.Elapsed.TotalMilliseconds;
+            frameTimer.Restart();
+
+            frameTimes.Enqueue(frameTime);
+            if (frameTimes.Count > maxFrameSamples)
+            {
+                frameTimes.Dequeue();
+            }
+
+            if (frameTimes.Count > 0)
+            {
+                double averageFrameTime = 0;
+                foreach (var time in frameTimes)
+                {
+                    averageFrameTime += time;
+                }
+                averageFrameTime /= frameTimes.Count;
+                currentFPS = 1000.0 / averageFrameTime;
             }
         }
 
@@ -172,10 +210,8 @@ namespace Console3DEnvironment
 
         static void RenderScene()
         {
-            for (int i = 0; i < screenBuffer.Length; i++)
-            {
-                screenBuffer[i] = ' ';
-            }
+            // Clear buffer
+            Array.Fill(screenBuffer, ' ');
 
             float fov = 90.0f;
             float aspectRatio = (float)screenWidth / screenHeight;
@@ -258,20 +294,38 @@ namespace Console3DEnvironment
                 }
             }
 
+            // Draw FPS counter in bottom left
+            string fpsText = $"FPS: {currentFPS:F1}";
+            int fpsY = screenHeight - 1;
+            for (int i = 0; i < fpsText.Length && i < screenWidth; i++)
+            {
+                if (fpsY >= 0 && fpsY < screenHeight)
+                {
+                    screenBuffer[fpsY * screenWidth + i] = fpsText[i];
+                }
+            }
+
             try
             {
+                // Use StringBuilder for efficient rendering
+                StringBuilder sb = new StringBuilder(screenBuffer.Length + screenHeight);
                 Console.SetCursorPosition(0, 0);
+                
                 for (int y = 0; y < screenHeight; y++)
                 {
                     if (y * screenWidth + screenWidth > screenBuffer.Length)
                         break;
 
-                    string line = new string(screenBuffer, y * screenWidth, screenWidth);
-                    Console.Write(line);
+                    sb.Append(screenBuffer, y * screenWidth, screenWidth);
+                    if (y < screenHeight - 1)
+                        sb.Append('\n');
                 }
+                
+                Console.Write(sb.ToString());
             }
             catch (ArgumentOutOfRangeException)
             {
+                // Handle buffer size mismatch gracefully
             }
         }
 
