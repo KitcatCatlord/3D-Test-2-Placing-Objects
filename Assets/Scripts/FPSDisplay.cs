@@ -14,38 +14,39 @@ public class FPSDisplay : MonoBehaviour
 
     private float[] frameDeltaTimes;
     private int frameIndex = 0;
+    private float frameTimeSum = 0f;
+    private GUIStyle labelStyle;
 
     void Start()
     {
         // Initialize the array to store frame delta times
         frameDeltaTimes = new float[frameRange];
+        
+        // Create the GUI style once for efficiency
+        labelStyle = new GUIStyle();
+        labelStyle.fontSize = 20;
+        labelStyle.normal.textColor = Color.white;
     }
 
     void Update()
     {
-        // Record the unscaled delta time for this frame
+        // Remove the old frame time from the sum and add the new one
+        frameTimeSum -= frameDeltaTimes[frameIndex];
         frameDeltaTimes[frameIndex] = Time.unscaledDeltaTime;
+        frameTimeSum += Time.unscaledDeltaTime;
+        
         frameIndex = (frameIndex + 1) % frameRange;
     }
 
     void OnGUI()
     {
-        // Calculate the average frame time
-        float sum = 0f;
-        foreach (float deltaTime in frameDeltaTimes)
-        {
-            sum += deltaTime;
-        }
-        float averageFrameTime = sum / frameRange;
+        // Calculate the average frame time using the maintained sum
+        float averageFrameTime = frameTimeSum / frameRange;
 
         // Calculate FPS (avoid division by zero)
         float fps = averageFrameTime > 0 ? 1f / averageFrameTime : 0f;
 
         // Display the FPS counter in the top-left corner
-        GUIStyle style = new GUIStyle();
-        style.fontSize = 20;
-        style.normal.textColor = Color.white;
-
-        GUI.Label(new Rect(10, 10, 100, 30), string.Format("FPS: {0:F1}", fps), style);
+        GUI.Label(new Rect(10, 10, 100, 30), string.Format("FPS: {0:F1}", fps), labelStyle);
     }
 }
