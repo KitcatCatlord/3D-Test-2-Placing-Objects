@@ -19,6 +19,12 @@ public class FPSDisplay : MonoBehaviour
 
     void Start()
     {
+        // Validate and clamp frameRange to ensure it's at least 1
+        if (frameRange < 1)
+        {
+            frameRange = 1;
+        }
+        
         // Initialize the array to store frame delta times
         frameDeltaTimes = new float[frameRange];
         
@@ -30,10 +36,13 @@ public class FPSDisplay : MonoBehaviour
 
     void Update()
     {
+        // Store unscaled delta time to avoid multiple property accesses
+        float deltaTime = Time.unscaledDeltaTime;
+        
         // Remove the old frame time from the sum and add the new one
         frameTimeSum -= frameDeltaTimes[frameIndex];
-        frameDeltaTimes[frameIndex] = Time.unscaledDeltaTime;
-        frameTimeSum += Time.unscaledDeltaTime;
+        frameDeltaTimes[frameIndex] = deltaTime;
+        frameTimeSum += deltaTime;
         
         frameIndex = (frameIndex + 1) % frameRange;
     }
