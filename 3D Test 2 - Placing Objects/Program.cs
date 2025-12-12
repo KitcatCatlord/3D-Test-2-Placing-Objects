@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 
@@ -164,12 +165,7 @@ namespace Console3DEnvironment
 
             if (frameTimes.Count > 0)
             {
-                double averageFrameTime = 0;
-                foreach (var time in frameTimes)
-                {
-                    averageFrameTime += time;
-                }
-                averageFrameTime /= frameTimes.Count;
+                double averageFrameTime = frameTimes.Average();
                 currentFPS = 1000.0 / averageFrameTime;
             }
         }
@@ -299,10 +295,7 @@ namespace Console3DEnvironment
             int fpsY = screenHeight - 1;
             for (int i = 0; i < fpsText.Length && i < screenWidth; i++)
             {
-                if (fpsY >= 0 && fpsY < screenHeight)
-                {
-                    screenBuffer[fpsY * screenWidth + i] = fpsText[i];
-                }
+                screenBuffer[fpsY * screenWidth + i] = fpsText[i];
             }
 
             try
