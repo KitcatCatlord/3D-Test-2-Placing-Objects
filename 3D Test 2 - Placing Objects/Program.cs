@@ -426,10 +426,10 @@ namespace Console3DEnvironment
 
         public static Vector3 Transform(Vector3 vector, Matrix4x4 matrix)
         {
-            float x = vector.X * matrix.M11 + vector.Y * matrix.M21 + vector.Z * matrix.M31 + matrix.M41;
-            float y = vector.X * matrix.M12 + vector.Y * matrix.M22 + vector.Z * matrix.M32 + matrix.M42;
-            float z = vector.X * matrix.M13 + vector.Y * matrix.M23 + vector.Z * matrix.M33 + matrix.M43;
-            float w = vector.X * matrix.M14 + vector.Y * matrix.M24 + vector.Z * matrix.M34 + matrix.M44;
+            float x = vector.X * matrix.M11 + vector.Y * matrix.M12 + vector.Z * matrix.M13 + matrix.M14;
+            float y = vector.X * matrix.M21 + vector.Y * matrix.M22 + vector.Z * matrix.M23 + matrix.M24;
+            float z = vector.X * matrix.M31 + vector.Y * matrix.M32 + vector.Z * matrix.M33 + matrix.M34;
+            float w = vector.X * matrix.M41 + vector.Y * matrix.M42 + vector.Z * matrix.M43 + matrix.M44;
 
             if (w != 0 && w != 1)
             {
@@ -512,10 +512,10 @@ namespace Console3DEnvironment
         public Vector4 MultiplyVector(Vector4 v)
         {
             return new Vector4(
-                v.X * M11 + v.Y * M21 + v.Z * M31 + v.W * M41,
-                v.X * M12 + v.Y * M22 + v.Z * M32 + v.W * M42,
-                v.X * M13 + v.Y * M23 + v.Z * M33 + v.W * M43,
-                v.X * M14 + v.Y * M24 + v.Z * M34 + v.W * M44
+                M11 * v.X + M12 * v.Y + M13 * v.Z + M14 * v.W,
+                M21 * v.X + M22 * v.Y + M23 * v.Z + M24 * v.W,
+                M31 * v.X + M32 * v.Y + M33 * v.Z + M34 * v.W,
+                M41 * v.X + M42 * v.Y + M43 * v.Z + M44 * v.W
             );
         }
     }
